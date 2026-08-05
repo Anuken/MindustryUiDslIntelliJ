@@ -21,7 +21,6 @@ table {
     growX: true
     grow: false
     padBottom: 10
-    color: "ff0079"
   }
 
   row
@@ -44,7 +43,11 @@ table {
   buttonTable {
     id: "asdf"
     size: 100
-    image: "cat"
+    image: "cat" {
+      color: ff3046ff
+    }
+    clicked: "do not"
+    color: accent
   }
 }
 

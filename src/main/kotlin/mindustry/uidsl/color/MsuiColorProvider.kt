@@ -50,19 +50,9 @@ class MsuiColorProvider : ElementColorProvider {
     }
 
     override fun setColorTo(element: PsiElement, color: Color) {
-        // The platform's color-picker popup calls setColorTo with this same PsiElement instance
-        // for every live preview update while it's open (each hue/lightness drag), not just once
-        // at the end. We always normalize the written value to 8 hex digits, so the *first* edit
-        // usually changes the token's length - and since this DSL's PSI tree is fully reparsed on
-        // every edit, that invalidates `element` itself. Any PSI accessor called on it afterwards
-        // (`.project`, `.containingFile`, `.textRange`, `.node`) throws PsiInvalidElementAccessException,
-        // which the picker's event loop swallows - which is exactly "updates once, then does nothing".
-        //
-        // So everything those accessors would give us is computed once, up front, and cached on
-        // the element via user data (a plain field on the object, unaffected by PSI validity) -
-        // every later call reuses the cached session and never touches the accessors again.
         val session = element.getUserData(COLOR_SESSION_KEY)?.takeIf { it.marker.isValid }
             ?: run {
+                if(!element.isValid) return
                 val project = element.project
                 val document = PsiDocumentManager.getInstance(project).getDocument(element.containingFile) ?: return
                 val range = element.textRange
