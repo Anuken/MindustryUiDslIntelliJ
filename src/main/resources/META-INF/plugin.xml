@@ -22,6 +22,7 @@
 
         <lang.parserDefinition language="Msui"
                                 implementationClass="mindustry.uidsl.psi.MsuiParserDefinition"/>
+        <colorProvider implementation="mindustry.uidsl.color.MsuiColorProvider"/>
 
         <lang.syntaxHighlighterFactory language="Msui"
                                         implementationClass="mindustry.uidsl.highlighter.MsuiSyntaxHighlighterFactory"/>

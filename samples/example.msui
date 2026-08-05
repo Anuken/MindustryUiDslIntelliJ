@@ -21,6 +21,7 @@ table {
     growX: true
     grow: false
     padBottom: 10
+    color: "ff0079"
   }
 
   row
@@ -28,6 +29,7 @@ table {
   check: "Enable bingus mode" {
     id: "hardcore"
     checked: false
+
   }
 
   row

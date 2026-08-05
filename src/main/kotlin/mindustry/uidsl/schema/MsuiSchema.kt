@@ -11,7 +11,9 @@ data class MsuiSchema(
     val commonProperties: List<String> = emptyList(),
     val cellProperties: List<String> = emptyList(),
     val properties: Map<String, PropertyDef> = emptyMap(),
-    val styles: Map<String, List<StyleDef>> = emptyMap()
+    val styles: Map<String, List<StyleDef>> = emptyMap(),
+    // name -> 8-digit "rrggbbaa" hex, mirroring arc.graphics.Color's built-in named constants.
+    val namedColors: Map<String, String> = emptyMap()
 ) {
     companion object {
         val EMPTY = MsuiSchema()

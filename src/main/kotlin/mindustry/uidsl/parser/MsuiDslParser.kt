@@ -1,5 +1,6 @@
 package mindustry.uidsl.parser
 
+import mindustry.uidsl.color.*
 import mindustry.uidsl.parser.MsuiDslParser.Diagnostic
 import mindustry.uidsl.schema.*
 
@@ -193,6 +194,13 @@ object MsuiDslParser {
                     val isComparison = Regex("""^(width|height)\s*(>=|<=|>|<)\s*-?\d+(\.\d+)?$""").matches(cond)
                     if(!isKeyword && !isComparison && valueTok.type == TokType.WORD) {
                         warn(valueTok, "Condition '$cond' does not look like 'portrait', 'landscape', or 'width|height >=|>|<|<= number'.")
+                    }
+                }
+
+                "color" -> {
+                    val resolved = parseMsuiColor(valueTok.value) != null || valueTok.value.lowercase() in schema.namedColors
+                    if(!resolved) {
+                        warn(valueTok, "Unknown color '${valueTok.value}'. Expected a hex value (e.g. \"ffffffff\") or a built-in color name.")
                     }
                 }
             }

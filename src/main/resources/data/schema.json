@@ -52,7 +52,7 @@
     "style":        { "type": "style",   "description": "Style name; must match the node's style class (see styles in schema)." },
     "group":        { "type": "string",  "description": "Name of a shared ButtonGroup / CheckBox group." },
     "condition":    { "type": "condition", "description": "'portrait', 'landscape', or e.g. 'width >= 400'. If false, node is skipped entirely." },
-    "color":        { "type": "string",  "description": "Cell color tint (hex string or color name). Applies to any node's cell, regardless of type." },
+    "color":        { "type": "color",  "description": "Cell color tint (hex string or color name). Applies to any node's cell, regardless of type." },
 
     "grow":     { "type": "boolean", "description": "cell.grow()" },
     "growX":    { "type": "boolean", "description": "cell.growX()" },
@@ -143,5 +143,19 @@
     "CheckBoxStyle": [
       { "name": "defaultCheck", "description": "Default check box style." }
     ]
+  },
+
+  "namedColors": {
+    "darkgrey": "3f3f3fff", "lightgrey": "bfbfbfff", "red": "e55454ff", "unlaunched": "8982edff",
+    "stat": "ffd37fff", "highlight": "ffe0a5ff", "gray": "7f7f7fff", "gold": "ffd700ff",
+    "blue": "4169e1ff", "teal": "007f7fff", "green": "38d667ff", "sky": "87ceebff",
+    "accent": "ffd37fff", "white": "ffffffff", "forest": "228b22ff", "purple": "a020f0ff",
+    "pink": "ff69b4ff", "goldenrod": "daa520ff", "salmon": "fa8072ff", "brick": "b22222ff",
+    "grey": "7f7f7fff", "olive": "6b8e23ff", "crimson": "dc143cff", "magenta": "ff00ffff",
+    "violet": "ee82eeff", "navy": "00007fff", "tan": "d2b48cff", "darkgray": "3f3f3fff",
+    "lightgray": "bfbfbfff", "lime": "32cd32ff", "negstat": "e55454ff", "slate": "708090ff",
+    "cyan": "00ffffff", "maroon": "b03060ff", "brown": "8b4513ff", "acid": "7fff00ff",
+    "clear": "00000000", "scarlet": "ff341cff", "royal": "4169e1ff", "coral": "ff7f50ff",
+    "black": "000000ff", "orange": "ffa500ff", "yellow": "ffff00ff"
   }
 }

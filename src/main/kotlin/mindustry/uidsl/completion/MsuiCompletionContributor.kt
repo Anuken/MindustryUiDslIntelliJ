@@ -4,7 +4,9 @@ import com.intellij.codeInsight.completion.*
 import com.intellij.codeInsight.lookup.*
 import com.intellij.patterns.*
 import com.intellij.util.*
+import com.intellij.util.ui.*
 import mindustry.uidsl.*
+import mindustry.uidsl.color.parseMsuiColor
 import mindustry.uidsl.parser.*
 import mindustry.uidsl.schema.*
 
@@ -124,6 +126,7 @@ private class MsuiCompletionProvider : CompletionProvider<CompletionParameters>(
 
     private fun buildValueCompletions(schema: MsuiSchema, enclosingType: String, key: String?): List<LookupElement> {
         if(key == null) return emptyList()
+        if(key == "color") return buildColorCompletions(schema)
         val def = schema.properties[key] ?: return emptyList()
         val items = ArrayList<LookupElement>()
 
@@ -158,6 +161,15 @@ private class MsuiCompletionProvider : CompletionProvider<CompletionParameters>(
         }
         return items
     }
+
+    /** Named built-in colors (`namedColors` in the schema), each shown with its actual swatch. */
+    private fun buildColorCompletions(schema: MsuiSchema): List<LookupElement> =
+        schema.namedColors.mapNotNull { (name, hex) ->
+            val color = parseMsuiColor(hex) ?: return@mapNotNull null
+            LookupElementBuilder.create(name)
+                .withIcon(ColorIcon(12, color))
+                .withTypeText(hex, false)
+        }
 
     /** Types `{ }` (or `: ""` for leaf-typed shorthand) after a node-type key and drops the caret inside. */
     private fun insertNodeSkeleton(ctx: InsertionContext, useBraceForm: Boolean) {
