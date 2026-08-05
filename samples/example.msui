@@ -1,5 +1,4 @@
 // Example server dialog UI
-background: "dialog"
 margin: 12
 
 table {
@@ -7,20 +6,26 @@ table {
   label: "Enter your name:" {
     style: outlineLabel
     wrap: true
+    colspan: 2
+    align: center
+    labelAlign: center
   }
+
+  image: router
   row
-  id: ""
+
   field: "" {
     id: "nameField"
     hint: "Player name"
     maxLength: 32
     growX: true
     grow: false
+    padBottom: 10
   }
 
   row
   condition: "width >= 400"
-  check: "Enable hardcore mode" {
+  check: "Enable bingus mode" {
     id: "hardcore"
     checked: false
   }
@@ -36,12 +41,15 @@ table {
   }
   buttonTable {
     id: "asdf"
+    size: 100
+    image: "cat"
   }
 }
 
 row
 row
-buttonTable {
+table {
+  fillX: true
   defaults {
     growX: true
     pad: 4
@@ -53,6 +61,8 @@ buttonTable {
   button: "Cancel" {
     clicked: "cancel"
     style: grayt
+    width: 100
+    height: 60
   }
   button: "OK" {
     clicked: "ok"
