@@ -1,0 +1,147 @@
+{
+  "_comment": "Edit this file to add/change node types, properties or styles. The extension reloads it automatically when it changes on disk.",
+
+  "nodeTypes": {
+    "table":       { "container": true,  "styleType": null,               "properties": ["background", "margin", "wrap"] },
+    "pane":        { "container": true,  "styleType": "ScrollPaneStyle",  "properties": ["style"] },
+    "label":       { "container": false, "styleType": "LabelStyle",       "properties": ["text", "wrap", "style", "labelAlign"] },
+    "image":       { "container": false, "styleType": null,               "properties": ["region", "icon", "scaling"] },
+    "button":      { "container": false, "styleType": "TextButtonStyle",  "properties": ["text", "icon", "style", "clicked", "group", "checked", "disabled"] },
+    "imageButton": { "container": false, "styleType": "ImageButtonStyle", "properties": ["icon", "style", "clicked", "group", "checked", "disabled"] },
+    "field":       { "container": false, "styleType": "TextFieldStyle",   "properties": ["text", "hint", "maxLength", "style", "enter", "disabled"] },
+    "check":       { "container": false, "styleType": "CheckBoxStyle",    "properties": ["text", "checked", "group", "style", "disabled"] },
+    "slider":      { "container": false, "styleType": "SliderStyle",      "properties": ["min", "max", "step", "defaultValue", "style", "text", "disabled"] },
+    "space":       { "container": false, "styleType": null,               "properties": [] },
+    "defaults":    { "container": false, "styleType": null,               "properties": [], "cellPropsOnly": true },
+    "buttonTable": { "container": true,  "styleType": ["TextButtonStyle", "ImageButtonStyle"], "properties": ["style", "clicked", "group", "checked", "margin", "disabled"] }
+  },
+
+  "commonProperties": ["id", "condition"],
+
+  "cellProperties": [
+    "grow", "growX", "growY",
+    "fill", "fillX", "fillY",
+    "expand", "expandX", "expandY",
+    "width", "height", "size",
+    "minWidth", "maxWidth", "minHeight", "maxHeight",
+    "pad", "padTop", "padLeft", "padBottom", "padRight",
+    "align", "colspan",
+    "uniform", "uniformX", "uniformY",
+    "color"
+  ],
+
+  "properties": {
+    "text":         { "type": "string",  "description": "Text content. In `slider`, a leading `@` treats it as a bundle key format string." },
+    "wrap":         { "type": "boolean", "description": "Whether text/content wraps. Also usable on `table` to create a WrapTable." },
+    "region":       { "type": "string",  "description": "Atlas region name (falls back to an icon name if not found)." },
+    "icon":         { "type": "string",  "description": "Icon name from Icon.icons (used as a fallback drawable lookup too)." },
+    "scaling":      { "type": "enum",    "values": ["stretch", "fit", "fill", "fillX", "fillY", "none", "stretchX", "stretchY"], "description": "arc.scene.style.Scaling value for images." },
+    "background":   { "type": "string",  "description": "Atlas region/drawable used as this table's background." },
+    "margin":       { "type": "number",  "description": "Margin applied to a table's or buttonTable's own body." },
+    "id":           { "type": "string",  "description": "Assigns this element's name and registers it for lookup / result extraction." },
+    "hint":         { "type": "string",  "description": "Placeholder/message text shown in an empty text field." },
+    "maxLength":    { "type": "number",  "description": "Maximum field text length (clamped to 1000)." },
+    "checked":      { "type": "boolean", "description": "Initial checked state (check box / toggleable button / buttonTable)." },
+    "disabled":     { "type": "boolean", "description": "Initial disabled state. Only applies to elements implementing Disableable (button, imageButton, field, check, slider, buttonTable)." },
+    "min":          { "type": "number",  "description": "Slider minimum value." },
+    "max":          { "type": "number",  "description": "Slider maximum value." },
+    "step":         { "type": "number",  "description": "Slider step size." },
+    "defaultValue": { "type": "number",  "description": "Slider initial value." },
+    "clicked":      { "type": "string",  "description": "Result id fired via the result listener when clicked." },
+    "enter":        { "type": "string",  "description": "Result id fired when Enter is pressed in a field." },
+    "style":        { "type": "style",   "description": "Style name; must match the node's style class (see styles in schema)." },
+    "group":        { "type": "string",  "description": "Name of a shared ButtonGroup / CheckBox group." },
+    "condition":    { "type": "condition", "description": "'portrait', 'landscape', or e.g. 'width >= 400'. If false, node is skipped entirely." },
+    "color":        { "type": "string",  "description": "Cell color tint (hex string or color name). Applies to any node's cell, regardless of type." },
+
+    "grow":     { "type": "boolean", "description": "cell.grow()" },
+    "growX":    { "type": "boolean", "description": "cell.growX()" },
+    "growY":    { "type": "boolean", "description": "cell.growY()" },
+    "fill":     { "type": "boolean", "description": "cell.fill()" },
+    "fillX":    { "type": "boolean", "description": "cell.fillX()" },
+    "fillY":    { "type": "boolean", "description": "cell.fillY()" },
+    "expand":   { "type": "boolean", "description": "cell.expand()" },
+    "expandX":  { "type": "boolean", "description": "cell.expandX()" },
+    "expandY":  { "type": "boolean", "description": "cell.expandY()" },
+    "width":      { "type": "number", "description": "cell.width(value)" },
+    "height":     { "type": "number", "description": "cell.height(value)" },
+    "size":       { "type": "number", "description": "cell.size(value)" },
+    "minWidth":   { "type": "number", "description": "cell.minWidth(value)" },
+    "maxWidth":   { "type": "number", "description": "cell.maxWidth(value)" },
+    "minHeight":  { "type": "number", "description": "cell.minHeight(value)" },
+    "maxHeight":  { "type": "number", "description": "cell.maxHeight(value)" },
+    "pad":        { "type": "number", "description": "cell.pad(value)" },
+    "padTop":     { "type": "number", "description": "cell.padTop(value)" },
+    "padLeft":    { "type": "number", "description": "cell.padLeft(value)" },
+    "padBottom":  { "type": "number", "description": "cell.padBottom(value)" },
+    "padRight":   { "type": "number", "description": "cell.padRight(value)" },
+    "align":      { "type": "enum", "values": ["center", "top", "bottom", "left", "right", "topLeft", "topRight", "bottomLeft", "botLeft", "bottomRight", "botRight"], "description": "cell.align(...) or table.align(...)" },
+    "labelAlign": { "type": "enum", "values": ["center", "top", "bottom", "left", "right", "topLeft", "topRight", "bottomLeft", "botLeft", "bottomRight", "botRight"], "description": "Label text alignment." },
+    "colspan":    { "type": "number", "description": "cell.colspan(value)" },
+    "uniform":    { "type": "boolean", "description": "cell.uniform()" },
+    "uniformX":   { "type": "boolean", "description": "cell.uniformX()" },
+    "uniformY":   { "type": "boolean", "description": "cell.uniformY()" }
+  },
+
+  "styles": {
+    "TextButtonStyle": [
+      { "name": "defaultt", "description": "Default text button style - gray corners at 45 degrees." },
+      { "name": "flatt", "description": "Flat, square, opaque." },
+      { "name": "grayt", "description": "Flat, square, opaque, gray." },
+      { "name": "flatTogglet", "description": "Flat, square, toggleable." },
+      { "name": "flatBordert", "description": "Flat, square, gray border." },
+      { "name": "nonet", "description": "No background whatsoever, only text." },
+      { "name": "logicTogglet", "description": "Similar to flatToggle, but slightly tweaked for logic." },
+      { "name": "flatToggleMenut", "description": "Similar to flatToggle, but with a transparent base background." },
+      { "name": "togglet", "description": "Toggle variant of default style." },
+      { "name": "cleart", "description": "Partially transparent square button." },
+      { "name": "clearTogglet", "description": "Clear, square, orange border, toggleable." },
+      { "name": "fullTogglet", "description": "Similar to flatToggle, but without a darker border." },
+      { "name": "squareTogglet", "description": "Toggle-able version of flatBorder." },
+      { "name": "logict", "description": "Special square button for logic dialogs." }
+    ],
+    "ImageButtonStyle": [
+      { "name": "defaulti", "description": "Default image button style - gray corners at 45 degrees." },
+      { "name": "nodei", "description": "Used for research nodes in the tech tree." },
+      { "name": "emptyi", "description": "No background, tints the image itself when hovered." },
+      { "name": "emptyTogglei", "description": "Toggleable variant of emptyi." },
+      { "name": "selecti", "description": "Displays border around image when selected; used in placement fragment." },
+      { "name": "logici", "description": "Pure black version of emptyi, used for logic toolbar." },
+      { "name": "geni", "description": "Used for toolbar in map generation filters." },
+      { "name": "grayi", "description": "Gray, toggleable, no background." },
+      { "name": "graySquarei", "description": "Gray square background, standard behavior. Equivalent to grayt." },
+      { "name": "flati", "description": "Flat, square, black background." },
+      { "name": "squarei", "description": "Square border." },
+      { "name": "squareTogglei", "description": "Square border, toggleable." },
+      { "name": "grayTogglei", "description": "Square border, toggleable." },
+      { "name": "clearNonei", "description": "No background unless focused, no border." },
+      { "name": "cleari", "description": "Partially transparent black background." },
+      { "name": "clearTogglei", "description": "Toggleable variant of cleari." },
+      { "name": "clearNoneTogglei", "description": "clearNone, but toggleable." }
+    ],
+    "ScrollPaneStyle": [
+      { "name": "defaultPane", "description": "Default scroll pane style." },
+      { "name": "horizontalPane", "description": "Horizontal scroll pane style." },
+      { "name": "smallPane", "description": "Small scroll pane style." },
+      { "name": "noBarPane", "description": "Scroll pane style with no visible scroll bar." }
+    ],
+    "SliderStyle": [
+      { "name": "defaultSlider", "description": "Default slider style." }
+    ],
+    "LabelStyle": [
+      { "name": "defaultLabel", "description": "Default label style." },
+      { "name": "outlineLabel", "description": "Label style with an outline, used for text over art." },
+      { "name": "techLabel", "description": "Label style used in the tech tree." },
+      { "name": "monoLabel", "description": "Monospaced label style." }
+    ],
+    "TextFieldStyle": [
+      { "name": "defaultField", "description": "Default text field style." },
+      { "name": "nodeField", "description": "Text field style used for tech tree / node UIs." },
+      { "name": "areaField", "description": "Multi-line text area field style." },
+      { "name": "nodeArea", "description": "Multi-line text area field style used for node UIs." }
+    ],
+    "CheckBoxStyle": [
+      { "name": "defaultCheck", "description": "Default check box style." }
+    ]
+  }
+}

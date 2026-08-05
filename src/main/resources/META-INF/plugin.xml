@@ -1,0 +1,57 @@
+<idea-plugin>
+    <id>mindustry.uidsl</id>
+    <name>Mindustry UI DSL</name>
+    <vendor url="https://github.com/Anuken/MindustryUiDslVSCode">our-slop-overlords</vendor>
+
+    <description><![CDATA[
+        Syntax highlighting, autocomplete, hover docs, and validation for Mindustry's
+        server-side UI builder DSL (<code>.msui</code> files), parsed by
+        <code>mindustry.ui.builder.UiDslParser</code>. Ported from the
+        <a href="https://github.com/Anuken/MindustryUiDslVSCode">VSCode extension</a> of the
+        same name.
+    ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <fileType name="Mindustry UI DSL"
+                  implementationClass="mindustry.uidsl.MsuiFileType"
+                  fieldName="INSTANCE"
+                  language="Msui"
+                  extensions="msui"/>
+
+        <lang.parserDefinition language="Msui"
+                                implementationClass="mindustry.uidsl.psi.MsuiParserDefinition"/>
+
+        <lang.syntaxHighlighterFactory language="Msui"
+                                        implementationClass="mindustry.uidsl.highlighter.MsuiSyntaxHighlighterFactory"/>
+
+        <colorSettingsPage implementation="mindustry.uidsl.highlighter.MsuiColorSettingsPage"/>
+
+        <lang.braceMatcher language="Msui" implementationClass="mindustry.uidsl.MsuiBraceMatcher"/>
+        <lang.commenter language="Msui" implementationClass="mindustry.uidsl.MsuiCommenter"/>
+        <quoteHandler fileType="Mindustry UI DSL" className="mindustry.uidsl.MsuiQuoteHandler"/>
+
+        <annotator language="Msui" implementationClass="mindustry.uidsl.annotator.MsuiAnnotator"/>
+
+        <completion.contributor language="Msui"
+                                 implementationClass="mindustry.uidsl.completion.MsuiCompletionContributor"/>
+
+        <lang.documentationProvider language="Msui"
+                                     implementationClass="mindustry.uidsl.documentation.MsuiDocumentationProvider"/>
+
+        <applicationService serviceImplementation="mindustry.uidsl.settings.MsuiSettings"/>
+        <applicationService serviceImplementation="mindustry.uidsl.schema.MsuiSchemaService"/>
+
+        <applicationConfigurable parentId="tools"
+                                  instance="mindustry.uidsl.settings.MsuiConfigurable"
+                                  id="mindustry.uidsl.settings.MsuiConfigurable"
+                                  displayName="Mindustry UI DSL"/>
+
+    </extensions>
+
+    <applicationListeners>
+        <listener class="mindustry.uidsl.schema.MsuiSchemaFileListener"
+                   topic="com.intellij.openapi.vfs.newvfs.BulkFileListener"/>
+    </applicationListeners>
+</idea-plugin>

@@ -1,0 +1,66 @@
+// Example server dialog UI
+background: "dialog"
+margin: 12
+
+table {
+  row
+  label: "Enter your name:" {
+    style: outlineLabel
+    wrap: true
+  }
+  row
+  id: ""
+  field: "" {
+    id: "nameField"
+    hint: "Player name"
+    maxLength: 32
+    growX: true
+    grow: false
+  }
+
+  row
+  condition: "width >= 400"
+  check: "Enable hardcore mode" {
+    id: "hardcore"
+    checked: false
+  }
+
+  row
+  slider {
+    min: 0
+    max: 1
+    step: 0.1
+    id: "volume"
+    defaultValue: 0.5
+    style: defaultSlider
+  }
+  buttonTable {
+    id: "asdf"
+  }
+}
+
+row
+row
+buttonTable {
+  defaults {
+    growX: true
+    pad: 4
+    padBottom: 3
+  }
+  button: "asdf" {
+
+  }
+  button: "Cancel" {
+    clicked: "cancel"
+    style: grayt
+  }
+  button: "OK" {
+    clicked: "ok"
+    style: defaultt
+    // intentional issues below, for testing diagnostics:
+    // 1) unknown property on button
+    //floop: true
+    // 2) unknown style name
+    // style: notARealStyle
+  }
+}
