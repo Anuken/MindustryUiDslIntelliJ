@@ -10,6 +10,14 @@ Language support for Mindustry's server-side UI builder DSL (parsed by `UiDslPar
 
 Download the latest JAR file from the [releases](https://github.com/Anuken/MindustryUiDslIntelliJ/releases/latest) tab. In IntelliJ, open Settings -> Plugins, click hear icon -> "Install From Disk..." -> select the downloaded JAR file.
 
+# Using
+
+Open a `.msui` file in IntelliJ. The, launch Mindustry, and in the Mindustry console (enabled in Developer options, opened with F8), type:
+
+`UiHotReload.show()`
+
+This will open a file chooser window. Select your `.msui` file. The dialog will now automatically display the layout you're working on, and live-reload it when the file changes.
+
 ## Features
 
 - **Syntax highlighting** — node types, `row`/`portrait`/`landscape` keywords, property
