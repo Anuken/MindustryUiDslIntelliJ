@@ -83,12 +83,17 @@ private class MsuiCompletionProvider : CompletionProvider<CompletionParameters>(
         val allowedProps = MsuiDslParser.allowedPropertiesFor(enclosingType, schema)
         // The root is always the implicit outer `table`, i.e. a container.
         val enclosingIsContainer = enclosingIsRoot || schema.nodeTypes[enclosingType]?.container == true
+        // Cell-less containers (e.g. `stack`) don't lay children out via Cells, so `row` and
+        // `defaults` - both Cell/Table concepts - are meaningless there and shouldn't be offered.
+        val enclosingIsCellless = !enclosingIsRoot && schema.nodeTypes[enclosingType]?.noCells == true
 
         // Node types (in any form, shorthand value or '{ }' body) only belong inside a container
         // (or the always-container root) - see MsuiDslParser.validateChildNodeContainment.
         // Non-container node types are leaf widgets and don't accept child nodes at all.
         if(enclosingIsContainer) {
             for((name, def) in schema.nodeTypes){
+                if((name == "defaults" || name == "space") && enclosingIsCellless) continue
+
                 val supportsShorthand = !def.container && def.properties.isNotEmpty()
 
 
@@ -112,8 +117,9 @@ private class MsuiCompletionProvider : CompletionProvider<CompletionParameters>(
             }
         }
 
-        // `row` only makes sense as a layout break between children of a container.
-        if(enclosingIsContainer) {
+        // `row` only makes sense as a layout break between children of a container that lays
+        // them out via Cells - not inside a cell-less container like `stack`.
+        if(enclosingIsContainer && !enclosingIsCellless) {
             items.add(
                 LookupElementBuilder.create("row")
                     .withTypeText("layout")

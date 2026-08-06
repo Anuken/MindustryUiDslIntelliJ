@@ -3,6 +3,7 @@
 
   "nodeTypes": {
     "table":       { "container": true,  "styleType": null,               "properties": ["background", "margin", "wrap"] },
+    "stack":       { "container": true,  "styleType": null,               "properties": [], "noCells": true },
     "pane":        { "container": true,  "styleType": "ScrollPaneStyle",  "properties": ["style"] },
     "label":       { "container": false, "styleType": "LabelStyle",       "properties": ["text", "wrap", "style", "labelAlign"] },
     "image":       { "container": false, "styleType": null,               "properties": ["region", "icon", "scaling"] },

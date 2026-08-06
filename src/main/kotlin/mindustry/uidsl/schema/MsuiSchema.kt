@@ -25,7 +25,9 @@ data class NodeTypeDef(
     // styleType may be absent, null, a single string, or an array of strings in the JSON.
     val styleType: JsonElement? = null,
     val properties: List<String> = emptyList(),
-    val cellPropsOnly: Boolean = false
+    val cellPropsOnly: Boolean = false,
+    // True for containers (like `stack`) whose children aren't laid out via a Cell.
+    val noCells: Boolean = false
 ) {
     /** Normalizes [styleType] to a list, regardless of whether the JSON had a string or an array. */
     fun styleTypeNames(): List<String> {

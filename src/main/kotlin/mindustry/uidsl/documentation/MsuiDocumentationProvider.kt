@@ -26,7 +26,11 @@ class MsuiDocumentationProvider : AbstractDocumentationProvider() {
         val schema = MsuiSchemaService.getInstance().schema
 
         schema.nodeTypes[word]?.let { def ->
-            val containerNote = if(def.container) " &mdash; container, can hold children" else ""
+            val containerNote = when {
+                def.container && def.noCells -> " &mdash; container, can hold children (no cells: 'row'/'defaults' don't apply)"
+                def.container -> " &mdash; container, can hold children"
+                else -> ""
+            }
             return "<b>$word</b> (node type)$containerNote"
         }
         schema.properties[word]?.let { def ->

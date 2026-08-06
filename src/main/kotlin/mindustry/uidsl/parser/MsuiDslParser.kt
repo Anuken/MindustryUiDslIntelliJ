@@ -216,6 +216,14 @@ object MsuiDslParser {
         fun validateChildNodeContainment(parentNode: Node, childType: String, childKeyTok: Tok) {
             if(parentNode.isRoot) return
             val parentDef = schema.nodeTypes[parentNode.type] ?: return
+
+            // `defaults` only makes sense for a container that lays children out via Cells;
+            // a cell-less container like `stack` has nothing for it to set defaults on.
+            if(childType == "defaults" && parentDef.noCells) {
+                warn(childKeyTok, "'defaults' does nothing inside '${parentNode.type}'; '${parentNode.type}' doesn't lay out children in cells.")
+                return
+            }
+
             if(parentDef.container) return
 
             val childIsContainer = schema.nodeTypes[childType]?.container == true
@@ -229,9 +237,17 @@ object MsuiDslParser {
 
         // `row` is a layout break between a container's children; it's meaningless inside a
         // non-container node type, so flag it the same way an out-of-place child node is flagged.
+        // It's equally meaningless inside a cell-less container like `stack`, which never breaks
+        // children into rows to begin with.
         fun validateRowContainment(parentNode: Node, rowTok: Tok) {
             if(parentNode.isRoot) return
             val parentDef = schema.nodeTypes[parentNode.type] ?: return
+
+            if(parentDef.noCells) {
+                warn(rowTok, "'row' does nothing inside '${parentNode.type}'; '${parentNode.type}' doesn't lay out children in cells.")
+                return
+            }
+
             if(parentDef.container) return
 
             warn(rowTok, "'row' can't be used here; '${parentNode.type}' isn't a container.")
