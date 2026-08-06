@@ -45,7 +45,7 @@ private class MsuiCompletionProvider : CompletionProvider<CompletionParameters>(
         val elements: List<LookupElement> = if(ctx.mode == Mode.VALUE) {
             buildValueCompletions(schema, ctx.enclosingType, ctx.key)
         } else {
-            buildKeyCompletions(schema, ctx.enclosingType)
+            buildKeyCompletions(schema, ctx.enclosingType, enclosing.isRoot)
         }
         result.addAllElements(elements)
     }
@@ -73,25 +73,39 @@ private class MsuiCompletionProvider : CompletionProvider<CompletionParameters>(
         return CompletionContext(Mode.KEY, enclosingType, null)
     }
 
-    private fun buildKeyCompletions(schema: MsuiSchema, enclosingType: String): List<LookupElement> {
+    private fun buildKeyCompletions(schema: MsuiSchema, enclosingType: String, enclosingIsRoot: Boolean): List<LookupElement> {
         val items = ArrayList<LookupElement>()
         val allowedProps = MsuiDslParser.allowedPropertiesFor(enclosingType, schema)
+        // The root is always the implicit outer `table`, i.e. a container.
+        val enclosingIsContainer = enclosingIsRoot || schema.nodeTypes[enclosingType]?.container == true
 
         for((name, def) in schema.nodeTypes) {
-            val tail = if(def.container) " { }" else if(def.properties.isEmpty()) " { }" else ": \"\""
+            // Only offer node types that would actually be valid to insert here (see
+            // MsuiDslParser.validateChildNodeContainment): inside a non-container, a node type is
+            // only sensible in the bare-shorthand-value form (no ' { }' body), and only when the
+            // node type itself isn't a container - anything needing a '{ }' body (containers, and
+            // leaf types with no properties to shorthand, like `defaults`/`space`) doesn't belong
+            // inside a non-container and is skipped.
+            val usesBraceForm = def.container || def.properties.isEmpty()
+            if(!enclosingIsContainer && (def.container || usesBraceForm)) continue
+
+            val tail = if(usesBraceForm) " { }" else ": \"\""
             items.add(
                 LookupElementBuilder.create(name)
                     .withTypeText("node type")
                     .withTailText(tail, true)
-                    .withInsertHandler { ctx, _ -> insertNodeSkeleton(ctx, def.container || def.properties.isEmpty()) }
+                    .withInsertHandler { ctx, _ -> insertNodeSkeleton(ctx, usesBraceForm) }
             )
         }
 
-        items.add(
-            LookupElementBuilder.create("row")
-                .withTypeText("layout")
-                .withInsertHandler { _, _ -> /* bare keyword, nothing extra to insert */ }
-        )
+        // `row` only makes sense as a layout break between children of a container.
+        if(enclosingIsContainer) {
+            items.add(
+                LookupElementBuilder.create("row")
+                    .withTypeText("layout")
+                    .withInsertHandler { _, _ -> /* bare keyword, nothing extra to insert */ }
+            )
+        }
 
         for(propName in allowedProps) {
             val def = schema.properties[propName] ?: continue

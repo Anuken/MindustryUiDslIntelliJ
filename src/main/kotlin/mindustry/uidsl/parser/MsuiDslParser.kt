@@ -208,6 +208,30 @@ object MsuiDslParser {
 
         fun makeNode(type: String, keyToken: Tok): Node = Node(type, keyToken)
 
+        // A child node is only sensible inside a *container* node type (table/pane/buttonTable) or
+        // the (always-container) root. Non-container node types are leaf widgets, so a nested node
+        // is only tolerated in the one shape that isn't really "a node" at all: a bare shorthand
+        // value with no follow-up block and no other block-forming shape (e.g.
+        // `button { image: "name" }`), which behaves like a property rather than structure.
+        // Anything else - a container child (`table: "x"`, with or without a block), a leaf-type
+        // child written with a `{ }` body, or a bare/typeless child (`image` alone) - is
+        // structurally nonsensical there and gets a warning.
+        fun validateChildNodeContainment(parentNode: Node, childType: String, childKeyTok: Tok, isBareShorthandValue: Boolean) {
+            if(parentNode.isRoot) return
+            val parentDef = schema.nodeTypes[parentNode.type] ?: return
+            if(parentDef.container) return
+
+            val childIsContainer = schema.nodeTypes[childType]?.container == true
+            if(childIsContainer) {
+                warn(childKeyTok, "'$childType' is a container and can't be placed inside '${parentNode.type}', which isn't a container.")
+                return
+            }
+
+            if(!isBareShorthandValue) {
+                warn(childKeyTok, "'$childType' can't be used as a node here; '${parentNode.type}' isn't a container. Did you mean a shorthand value like '$childType: \"...\"'?")
+            }
+        }
+
         // parseStatementsInto and parseStatement are mutually recursive. Kotlin local `fun`s
         // can't forward-reference each other, so they're declared as lateinit lambdas instead:
         // both are assigned before either is ever invoked (parse() only calls parseStatementsInto
@@ -284,8 +308,10 @@ object MsuiDslParser {
                         } else {
                             err(peek(), "Expected '}' to close block.")
                         }
+                        validateChildNodeContainment(node, ident, identTok, isBareShorthandValue = false)
                     } else {
                         child.end = valueTok.end
+                        validateChildNodeContainment(node, ident, identTok, isBareShorthandValue = true)
                     }
                     node.entries.add(Entry(ident, identTok, EntryKind.CHILD, child = child, colonToken = colonTok))
                 } else {
@@ -313,6 +339,7 @@ object MsuiDslParser {
                 } else {
                     err(peek(), "Expected '}' to close block.")
                 }
+                validateChildNodeContainment(node, ident, identTok, isBareShorthandValue = false)
                 node.entries.add(Entry(ident, identTok, EntryKind.CHILD, child = child))
                 return@ps
             }
@@ -327,6 +354,7 @@ object MsuiDslParser {
             val child = makeNode(ident, identTok)
             child.end = identTok.end
             child.parent = node
+            validateChildNodeContainment(node, ident, identTok, isBareShorthandValue = false)
             node.entries.add(Entry(ident, identTok, EntryKind.CHILD, child = child))
         }
 
