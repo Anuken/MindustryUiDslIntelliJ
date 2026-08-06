@@ -40,51 +40,14 @@ This will open a file chooser window. Select your `.msui` file. The dialog will 
 - A **Color Settings Page** (Settings | Editor | Color Scheme | Mindustry UI DSL) so users
   can customize the token colors.
 
-## Project layout
-
-```
-src/main/kotlin/com/anuke/mindustry/uidsl/
-  MsuiLanguage.kt, MsuiFileType.kt, MsuiIcons.kt   — language/file type registration
-  MsuiBraceMatcher.kt, MsuiCommenter.kt, MsuiQuoteHandler.kt
-  lexer/            — hand-rolled Lexer (direct port of UiDslParser's/parser.js's tokenizer)
-  psi/              — minimal PsiFile/ParserDefinition (flat PSI tree; see note below)
-  parser/           — MsuiDslParser: structural/diagnostic parser, port of parser.js's parse()
-  schema/           — MsuiSchema data model + MsuiSchemaService (loads/watches schema.json)
-  settings/         — MsuiSettings (persisted state) + MsuiConfigurable (settings UI)
-  highlighter/      — SyntaxHighlighter (token-level colors) + ColorSettingsPage
-  annotator/        — MsuiAnnotator: diagnostics + semantic (parse-aware) token colors
-  completion/        — MsuiCompletionContributor: port of extension.js's completion logic
-  documentation/    — MsuiDocumentationProvider: port of the hover provider
-src/main/resources/
-  META-INF/plugin.xml
-  data/schema.json  — bundled schema (copied verbatim from the VSCode extension)
-  icons/msui.svg
-samples/example.msui
-```
-
-**Why a flat PSI tree?** The original extension never builds a full AST either — it
-tokenizes and parses the whole document into a node tree independently, purely to compute
-diagnostics/completion context, and otherwise works directly against text offsets. This
-plugin does the same: [`MsuiPsiParser`](src/main/kotlin/com/anuke/mindustry/uidsl/psi/MsuiPsiParser.kt)
-builds the trivial tree IntelliJ requires (whitespace/comments/strings/braces as leaves under
-one root), while [`MsuiDslParser`](src/main/kotlin/com/anuke/mindustry/uidsl/parser/MsuiDslParser.kt)
-does the actual semantic parse the annotator/completion/docs all share. If you later want
-structural navigation (Find Usages on an `id:`, rename refactoring, a Structure view), that's
-the place to grow a real composite-element PSI tree from.
-
 ## Building & running
 
 Requires JDK 17+.
 
 ```bash
-gradle runIde     # launches a sandbox IDE with the plugin installed
+gradle runIde       # launches a sandbox IDE with the plugin installed
 gradle buildPlugin  # produces build/distributions/mindustry-ui-dsl-idea-*.zip
 ```
-
-Install the built zip via **Settings | Plugins | ⚙ | Install Plugin from Disk…** in any
-IntelliJ Platform IDE (2023.3+ — e.g. IntelliJ IDEA Community/Ultimate; the plugin only
-depends on `com.intellij.modules.platform` so it should also work in other JetBrains IDEs
-that bundle that module).
 
 Open [`samples/example.msui`](samples/example.msui) to try it out.
 

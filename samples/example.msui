@@ -52,7 +52,6 @@ table {
 }
 
 row
-row
 table {
   fillX: true
   defaults {
