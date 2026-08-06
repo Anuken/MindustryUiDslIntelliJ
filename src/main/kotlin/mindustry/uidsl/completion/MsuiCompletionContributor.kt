@@ -30,6 +30,11 @@ private class MsuiCompletionProvider : CompletionProvider<CompletionParameters>(
         context: ProcessingContext,
         result: CompletionResultSet
     ) {
+        // Never autocomplete inside comments - the flat PSI tree puts the caret's dummy
+        // identifier straight inside the COMMENT leaf when typing after '//', and none of the
+        // key/value suggestions below make sense there.
+        if(parameters.position.node?.elementType == mindustry.uidsl.lexer.MsuiTypes.COMMENT) return
+
         val file = parameters.originalFile
         val text = file.text
         val offset = parameters.offset
@@ -79,23 +84,32 @@ private class MsuiCompletionProvider : CompletionProvider<CompletionParameters>(
         // The root is always the implicit outer `table`, i.e. a container.
         val enclosingIsContainer = enclosingIsRoot || schema.nodeTypes[enclosingType]?.container == true
 
-        for((name, def) in schema.nodeTypes) {
-            // Only offer node types that would actually be valid to insert here (see
-            // MsuiDslParser.validateChildNodeContainment): inside a non-container, a node type is
-            // only sensible in the bare-shorthand-value form (no ' { }' body), and only when the
-            // node type itself isn't a container - anything needing a '{ }' body (containers, and
-            // leaf types with no properties to shorthand, like `defaults`/`space`) doesn't belong
-            // inside a non-container and is skipped.
-            val usesBraceForm = def.container || def.properties.isEmpty()
-            if(!enclosingIsContainer && (def.container || usesBraceForm)) continue
+        // Node types (in any form, shorthand value or '{ }' body) only belong inside a container
+        // (or the always-container root) - see MsuiDslParser.validateChildNodeContainment.
+        // Non-container node types are leaf widgets and don't accept child nodes at all.
+        if(enclosingIsContainer) {
+            for((name, def) in schema.nodeTypes){
+                val supportsShorthand = !def.container && def.properties.isNotEmpty()
 
-            val tail = if(usesBraceForm) " { }" else ": \"\""
-            items.add(
-                LookupElementBuilder.create(name)
-                    .withTypeText("node type")
-                    .withTailText(tail, true)
-                    .withInsertHandler { ctx, _ -> insertNodeSkeleton(ctx, usesBraceForm) }
-            )
+
+                // widgets like `button` can be completed as `button "" { }`
+                items.add(
+                    LookupElementBuilder.create(name)
+                        .withPresentableText(if(supportsShorthand) "$name: \"\" { }" else name)
+                        .withTypeText("node type")
+                        .withTailText(if(supportsShorthand) "" else " { }", true)
+                        .withInsertHandler { ctx, _ -> insertNodeSkeleton(ctx, useBraceForm = true, supportsShorthand = supportsShorthand) }
+                )
+
+                if(name == "label"){ //only show shorthand-only completion for labels, for buttons it's useless
+                    items.add(
+                        LookupElementBuilder.create(name)
+                            .withTypeText("node type")
+                            .withTailText(": \"\"", true)
+                            .withInsertHandler { ctx, _ -> insertNodeSkeleton(ctx, useBraceForm = false) }
+                    )
+                }
+            }
         }
 
         // `row` only makes sense as a layout break between children of a container.
@@ -185,19 +199,26 @@ private class MsuiCompletionProvider : CompletionProvider<CompletionParameters>(
         }
 
     /** Types `{ }` (or `: ""` for leaf-typed shorthand) after a node-type key and drops the caret inside. */
-    private fun insertNodeSkeleton(ctx: InsertionContext, useBraceForm: Boolean) {
+    private fun insertNodeSkeleton(ctx: InsertionContext, useBraceForm: Boolean, supportsShorthand: Boolean = false) {
         val editor = ctx.editor
         val document = ctx.document
         val tail = ctx.tailOffset
 
         if(useBraceForm) {
-            document.insertString(tail, " {\n\t\n}")
+            val lineNumber = document.getLineNumber(tail)
+            val lineStart = document.getLineStartOffset(lineNumber)
+            val lineText = document.charsSequence.subSequence(lineStart, tail).toString()
+            val currentIndent = lineText.takeWhile{ it == ' ' || it == '\t' }
+            val innerIndent = "$currentIndent\t"
+
+            val skeleton = if(supportsShorthand) ": \"\" {\n$innerIndent\n$currentIndent}" else "{\n$innerIndent\n$currentIndent}"
+            document.insertString(tail, skeleton)
             ctx.commitDocument()
-            editor.caretModel.moveToOffset(tail + 3) // right after "\n\t"
+            editor.caretModel.moveToOffset(tail + (if(supportsShorthand) 7 else 2) + innerIndent.length) // after "{\n" + innerIndent
         } else {
             document.insertString(tail, ": \"\"")
             ctx.commitDocument()
-            editor.caretModel.moveToOffset(tail + 3) // between the quotes
+            editor.caretModel.moveToOffset(tail + 3)
         }
     }
 

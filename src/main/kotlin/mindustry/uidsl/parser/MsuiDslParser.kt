@@ -209,14 +209,11 @@ object MsuiDslParser {
         fun makeNode(type: String, keyToken: Tok): Node = Node(type, keyToken)
 
         // A child node is only sensible inside a *container* node type (table/pane/buttonTable) or
-        // the (always-container) root. Non-container node types are leaf widgets, so a nested node
-        // is only tolerated in the one shape that isn't really "a node" at all: a bare shorthand
-        // value with no follow-up block and no other block-forming shape (e.g.
-        // `button { image: "name" }`), which behaves like a property rather than structure.
-        // Anything else - a container child (`table: "x"`, with or without a block), a leaf-type
-        // child written with a `{ }` body, or a bare/typeless child (`image` alone) - is
+        // the (always-container) root. Non-container node types are leaf widgets, so nesting any
+        // node inside one - whether written as a bare shorthand value (`button: "..."`), a
+        // shorthand value with a follow-up block, a `{ }` body, or a bare/typeless child - is
         // structurally nonsensical there and gets a warning.
-        fun validateChildNodeContainment(parentNode: Node, childType: String, childKeyTok: Tok, isBareShorthandValue: Boolean) {
+        fun validateChildNodeContainment(parentNode: Node, childType: String, childKeyTok: Tok) {
             if(parentNode.isRoot) return
             val parentDef = schema.nodeTypes[parentNode.type] ?: return
             if(parentDef.container) return
@@ -227,9 +224,17 @@ object MsuiDslParser {
                 return
             }
 
-            if(!isBareShorthandValue) {
-                warn(childKeyTok, "'$childType' can't be used as a node here; '${parentNode.type}' isn't a container. Did you mean a shorthand value like '$childType: \"...\"'?")
-            }
+            warn(childKeyTok, "'$childType' can't be used as a node here; '${parentNode.type}' isn't a container and doesn't accept child nodes.")
+        }
+
+        // `row` is a layout break between a container's children; it's meaningless inside a
+        // non-container node type, so flag it the same way an out-of-place child node is flagged.
+        fun validateRowContainment(parentNode: Node, rowTok: Tok) {
+            if(parentNode.isRoot) return
+            val parentDef = schema.nodeTypes[parentNode.type] ?: return
+            if(parentDef.container) return
+
+            warn(rowTok, "'row' can't be used here; '${parentNode.type}' isn't a container.")
         }
 
         // parseStatementsInto and parseStatement are mutually recursive. Kotlin local `fun`s
@@ -269,6 +274,7 @@ object MsuiDslParser {
 
             if(ident == "row") {
                 node.entries.add(Entry("row", identTok, EntryKind.ROW))
+                validateRowContainment(node, identTok)
                 return@ps
             }
 
@@ -308,10 +314,10 @@ object MsuiDslParser {
                         } else {
                             err(peek(), "Expected '}' to close block.")
                         }
-                        validateChildNodeContainment(node, ident, identTok, isBareShorthandValue = false)
+                        validateChildNodeContainment(node, ident, identTok)
                     } else {
                         child.end = valueTok.end
-                        validateChildNodeContainment(node, ident, identTok, isBareShorthandValue = true)
+                        validateChildNodeContainment(node, ident, identTok)
                     }
                     node.entries.add(Entry(ident, identTok, EntryKind.CHILD, child = child, colonToken = colonTok))
                 } else {
@@ -339,7 +345,7 @@ object MsuiDslParser {
                 } else {
                     err(peek(), "Expected '}' to close block.")
                 }
-                validateChildNodeContainment(node, ident, identTok, isBareShorthandValue = false)
+                validateChildNodeContainment(node, ident, identTok)
                 node.entries.add(Entry(ident, identTok, EntryKind.CHILD, child = child))
                 return@ps
             }
@@ -354,7 +360,7 @@ object MsuiDslParser {
             val child = makeNode(ident, identTok)
             child.end = identTok.end
             child.parent = node
-            validateChildNodeContainment(node, ident, identTok, isBareShorthandValue = false)
+            validateChildNodeContainment(node, ident, identTok)
             node.entries.add(Entry(ident, identTok, EntryKind.CHILD, child = child))
         }
 
