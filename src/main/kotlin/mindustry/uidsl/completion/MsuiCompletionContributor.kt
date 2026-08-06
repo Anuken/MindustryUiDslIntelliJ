@@ -78,7 +78,6 @@ private class MsuiCompletionProvider : CompletionProvider<CompletionParameters>(
         val allowedProps = MsuiDslParser.allowedPropertiesFor(enclosingType, schema)
 
         for((name, def) in schema.nodeTypes) {
-            if(def.cellPropsOnly) continue // e.g. 'defaults' doesn't nest usefully as a general child suggestion
             val tail = if(def.container) " { }" else if(def.properties.isEmpty()) " { }" else ": \"\""
             items.add(
                 LookupElementBuilder.create(name)
@@ -91,7 +90,7 @@ private class MsuiCompletionProvider : CompletionProvider<CompletionParameters>(
         items.add(
             LookupElementBuilder.create("row")
                 .withTypeText("layout")
-                .withInsertHandler { ctx, _ -> /* bare keyword, nothing extra to insert */ }
+                .withInsertHandler { _, _ -> /* bare keyword, nothing extra to insert */ }
         )
 
         for(propName in allowedProps) {

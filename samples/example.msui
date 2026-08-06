@@ -31,6 +31,10 @@ table {
 
   }
 
+  defaults{
+    width: 3
+  }
+
   row
   slider {
     min: 0
