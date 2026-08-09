@@ -15,29 +15,16 @@ import mindustry.uidsl.lexer.MsuiTypes
 import mindustry.uidsl.schema.MsuiSchemaService
 import java.awt.Color
 
-/**
- * Everything [MsuiColorProvider.setColorTo] needs for one interactive color-picker session,
- * captured up front. See the comment on [MsuiColorProvider.setColorTo] for why: after the
- * first edit, the `element` the platform keeps calling back with is an invalidated PSI leaf,
- * so none of its accessors (`.project`, `.containingFile`, `.textRange`, `.node`, ...) - only
- * `getUserData`/`putUserData`, which just read/write a plain field on the object - are safe
- * to call again.
- */
+//necessary due to PSI element invalidation after one edit
 private class ColorEditSession(val project: Project, val document: Document, val marker: RangeMarker, val quoted: Boolean)
 
 private val COLOR_SESSION_KEY = Key.create<ColorEditSession>("mindustry.uidsl.color.session")
 
 /**
- * Shows an inline color swatch next to the value of a `color: "..."` property (Mindustry's
- * cell color-tint property), and lets the user edit it with the platform's standard color
+ * Shows an inline color swatch next to the value of a `color: "..."` property, and lets the user edit it with the platform's standard color
  * picker by clicking the swatch - the same mechanism CSS/Java hex-color literals use.
  *
- * Our PSI tree is intentionally flat (see [mindustry.uidsl.psi.MsuiPsiParser]): every token
- * is a leaf directly under the file root. So "is this element a color value" is answered by
- * walking backwards over sibling leaves rather than looking at a parent property node.
- *
- * The value can be a hex string (optionally `#`-prefixed, 3/4/6/8 hex digits, matching
- * `Color.valueOf`) or one of arc's built-in named color constants (`"white"`, `"scarlet"`, ...),
+ * The value can be a hex string (optionally `#`-prefixed, 3/4/6/8 hex digits, matching `Color.valueOf`) or one of arc's built-in named color constants (`"white"`, `"scarlet"`, ...),
  * which are looked up in [mindustry.uidsl.schema.MsuiSchema.namedColors].
  */
 class MsuiColorProvider : ElementColorProvider {

@@ -10,8 +10,7 @@ import mindustry.uidsl.lexer.*
 /**
  * Handles the token kinds whose color never depends on context (strings, comments, braces,
  * colon). WORD tokens (node types, property keys, booleans, numbers, plain identifiers) are
- * context-dependent - like the original TextMate grammar's regex lookarounds - and are instead
- * colored by [com.anuke.mindustry.uidsl.annotator.MsuiAnnotator] after a real parse.
+ * colored by [mindustry.uidsl.annotator.MsuiAnnotator] after a real parse.
  */
 class MsuiSyntaxHighlighter : SyntaxHighlighterBase() {
     override fun getHighlightingLexer(): Lexer = MsuiLexer()

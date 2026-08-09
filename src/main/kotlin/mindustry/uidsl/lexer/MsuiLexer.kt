@@ -4,16 +4,6 @@ import com.intellij.lexer.*
 import com.intellij.psi.*
 import com.intellij.psi.tree.*
 
-/**
- * Hand-rolled lexer for the `.msui` DSL. This is a direct, offset-accurate port of the
- * character-scanning rules in `UiDslParser` (Java) / `tokenize()` (parser.js), extended so
- * that every character in the buffer is covered by some token (including whitespace and
- * comments, which the reference parsers simply skip over rather than emit tokens for).
- *
- * The grammar has no lookahead/state that spans token boundaries, so re-starting the scan
- * at any `startOffset` (which the platform only ever does at a previous token boundary)
- * is safe.
- */
 class MsuiLexer : LexerBase() {
     private lateinit var buffer: CharSequence
     private var bufferEnd: Int = 0

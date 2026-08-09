@@ -7,11 +7,7 @@ import com.intellij.openapi.editor.*
 import mindustry.uidsl.settings.*
 import java.io.*
 
-/**
- * Loads `data/schema.json` (bundled with the plugin) or, if configured in
- * Settings | Tools | Mindustry UI DSL, a user-supplied override file - mirroring
- * `loadSchema()` in the VSCode extension's `extension.js`.
- */
+/** Loads `data/schema.json` (bundled with the plugin) or, if configured in Settings | Tools | Mindustry UI DSL. */
 @Service(Service.Level.APP)
 class MsuiSchemaService {
 
@@ -55,8 +51,6 @@ class MsuiSchemaService {
     /** Reloads the schema and asks the editor to re-highlight open `.msui` files. */
     fun reloadAndRestartAnalysis() {
         reload()
-        // Nudge the daemon by touching document listeners is overkill here; a simple
-        // full restart of highlighting for all open editors is sufficient and cheap.
         for(editor in EditorFactory.getInstance().allEditors) {
             editor.project?.let { project ->
                 com.intellij.codeInsight.daemon.DaemonCodeAnalyzer.getInstance(project).restart()

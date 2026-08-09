@@ -2,10 +2,7 @@ package mindustry.uidsl.settings
 
 import com.intellij.openapi.components.*
 
-/**
- * Equivalent of the VSCode extension's `msui.schemaPath` setting: an optional absolute path
- * to a custom `schema.json` overriding the bundled one (node types / properties / styles).
- */
+/** An optional absolute path to a custom `schema.json` overriding the bundled one (node types / properties / styles) */
 @State(name = "MsuiSettings", storages = [Storage("msui.xml")])
 @Service(Service.Level.APP)
 class MsuiSettings : PersistentStateComponent<MsuiSettings.State> {

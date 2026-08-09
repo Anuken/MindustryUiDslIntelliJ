@@ -3,8 +3,7 @@ package mindustry.uidsl.schema
 import com.google.gson.*
 
 /**
- * Kotlin mirror of `data/schema.json`. Node types / properties / styles are all data-driven
- * so the plugin behaves identically for a user-supplied custom schema (see [MsuiSettings]).
+ * Kotlin mirror of `data/schema.json`.
  */
 data class MsuiSchema(
     val nodeTypes: Map<String, NodeTypeDef> = emptyMap(),

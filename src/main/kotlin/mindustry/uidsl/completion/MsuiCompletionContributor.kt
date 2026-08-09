@@ -31,8 +31,6 @@ private class MsuiCompletionProvider : CompletionProvider<CompletionParameters>(
         result: CompletionResultSet
     ) {
         // Never autocomplete inside comments - the flat PSI tree puts the caret's dummy
-        // identifier straight inside the COMMENT leaf when typing after '//', and none of the
-        // key/value suggestions below make sense there.
         if(parameters.position.node?.elementType == mindustry.uidsl.lexer.MsuiTypes.COMMENT) return
 
         val file = parameters.originalFile
@@ -88,8 +86,6 @@ private class MsuiCompletionProvider : CompletionProvider<CompletionParameters>(
         val enclosingIsCellless = !enclosingIsRoot && schema.nodeTypes[enclosingType]?.noCells == true
 
         // Node types (in any form, shorthand value or '{ }' body) only belong inside a container
-        // (or the always-container root) - see MsuiDslParser.validateChildNodeContainment.
-        // Non-container node types are leaf widgets and don't accept child nodes at all.
         if(enclosingIsContainer) {
             for((name, def) in schema.nodeTypes){
                 if((name == "defaults" || name == "space") && enclosingIsCellless) continue
@@ -117,8 +113,7 @@ private class MsuiCompletionProvider : CompletionProvider<CompletionParameters>(
             }
         }
 
-        // `row` only makes sense as a layout break between children of a container that lays
-        // them out via Cells - not inside a cell-less container like `stack`.
+        // `row` only makes sense as a layout break between children of a container
         if(enclosingIsContainer && !enclosingIsCellless) {
             items.add(
                 LookupElementBuilder.create("row")
@@ -234,13 +229,11 @@ private class MsuiCompletionProvider : CompletionProvider<CompletionParameters>(
         document.insertString(tail, ": ")
         ctx.commitDocument()
         ctx.editor.caretModel.moveToOffset(tail + 2)
-        // Immediately re-trigger completion so value suggestions show up, mirroring the
-        // VSCode extension's `:` completion trigger character.
+        // Immediately re-trigger completion so value suggestions show up
         AutoPopupControllerHelper.scheduleAutoPopup(ctx)
     }
 }
 
-/** Small indirection so we don't need a hard compile-time dependency shape change if this helper evolves. */
 private object AutoPopupControllerHelper {
     fun scheduleAutoPopup(ctx: InsertionContext) {
         com.intellij.codeInsight.AutoPopupController.getInstance(ctx.project).scheduleAutoPopup(ctx.editor)

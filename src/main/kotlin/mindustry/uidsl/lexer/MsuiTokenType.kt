@@ -7,7 +7,6 @@ class MsuiTokenType(debugName: String) : IElementType(debugName, MsuiLanguage) {
     override fun toString(): String = "MsuiTokenType." + super.toString()
 }
 
-/** Mirrors the token kinds produced by both `UiDslParser`'s tokenizer and the VSCode `parser.js` tokenizer. */
 object MsuiTypes {
     @JvmField
     val WORD = MsuiTokenType("WORD")

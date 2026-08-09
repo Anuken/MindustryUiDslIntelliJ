@@ -1,8 +1,8 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.tasks.*
 
 plugins {
     id("java")
-    id("org.jetbrains.kotlin.jvm") version "1.9.25"
+    id("org.jetbrains.kotlin.jvm") version "1.9.25" //2.x makes the plugin explode
     id("org.jetbrains.intellij") version "1.17.4"
 }
 
@@ -15,7 +15,7 @@ repositories {
 
 intellij {
     version.set("2024.1")
-    type.set("IC") // IntelliJ IDEA Community Edition
+    type.set("IC") //IntelliJ IDEA Community Edition
     plugins.set(listOf())
     updateSinceUntilBuild.set(false)
 }
@@ -35,14 +35,10 @@ tasks.withType<KotlinCompile> {
 tasks {
     patchPluginXml {
         sinceBuild.set("241")
-        untilBuild.set("262.*")
+        untilBuild.set("262.*") //likely won't work, but it's worth a try
     }
 
-    // The bundled schema.json / icon live under src/main/resources already;
-    // nothing extra to wire up here.
-
     runIde {
-        // Opens a sandbox IDE with the plugin installed, pre-loaded with the sample file.
         jvmArgs("-Xmx2g")
     }
 }

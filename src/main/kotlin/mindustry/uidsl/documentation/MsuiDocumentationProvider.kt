@@ -16,8 +16,6 @@ class MsuiDocumentationProvider : AbstractDocumentationProvider() {
         contextElement: PsiElement?,
         targetOffset: Int
     ): PsiElement? {
-        // Our PSI tree is flat leaves (see MsuiPsiParser); the WORD token under the caret is
-        // already the element we want to document - no reference resolution needed.
         return contextElement?.takeIf { it.elementType == MsuiTypes.WORD }
     }
 

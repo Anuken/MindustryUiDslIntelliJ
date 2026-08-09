@@ -10,13 +10,9 @@ import mindustry.uidsl.psi.*
 import mindustry.uidsl.schema.*
 
 /**
- * Ported from `validateDocument()` in extension.js (error/warning squiggles) plus semantic
- * highlighting that the flat lexer alone can't express (e.g. telling a node-type keyword
- * apart from a boolean literal or a style name, all of which lex as plain WORD tokens -
- * the same ambiguity the TextMate grammar resolves with regex lookarounds).
+ * Semantic highlighting that the flat lexer alone can't express, e.g. telling a node-type keyword apart from a boolean literal or a style name, all of which lex as plain WORD tokens.
  *
- * Runs once per file: the annotator infrastructure visits every element in the tree, but our
- * PSI tree is intentionally flat (see [com.anuke.mindustry.uidsl.psi.MsuiPsiParser]), so we
+ * Runs once per file: the annotator infrastructure visits every element in the tree, but our PSI tree is intentionally flat (see [mindustry.uidsl.psi.MsuiPsiParser]), so we
  * gate on the file root and do the whole-document parse/annotate pass there.
  */
 class MsuiAnnotator : Annotator {

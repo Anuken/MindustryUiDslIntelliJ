@@ -4,18 +4,6 @@ import mindustry.uidsl.color.*
 import mindustry.uidsl.parser.MsuiDslParser.Diagnostic
 import mindustry.uidsl.schema.*
 
-/**
- * A structural/diagnostic parser for the `.msui` DSL, ported from the VSCode extension's
- * `src/parser.js`. It mirrors the grammar rules of `mindustry.ui.builder.UiDslParser` closely
- * enough to:
- *  - detect syntax errors (with source offsets, for [MsuiAnnotator]),
- *  - know, at any offset, which node type currently encloses the cursor (for completion), and
- *  - know which key/value is being written (for completion).
- *
- * Unlike the real Java parser, this one never throws - it collects [Diagnostic]s and keeps
- * parsing so the IDE can report every problem in one pass, and recovers from malformed input
- * enough to keep offering useful completions while the user is mid-edit.
- */
 object MsuiDslParser {
 
     enum class TokType { WORD, STRING, COLON, LBRACE, RBRACE, EOF }
@@ -54,9 +42,7 @@ object MsuiDslParser {
 
     class ParseResult(val root: Node, val diagnostics: List<Diagnostic>, val tokens: List<Tok>)
 
-    // ---------------------------------------------------------------------
     // Tokenizer
-    // ---------------------------------------------------------------------
 
     fun tokenize(text: String): List<Tok> {
         val tokens = ArrayList<Tok>()
@@ -126,9 +112,7 @@ object MsuiDslParser {
         return tokens
     }
 
-    // ---------------------------------------------------------------------
     // Parser
-    // ---------------------------------------------------------------------
 
     fun parse(text: String, schema: MsuiSchema): ParseResult {
         val tokens = tokenize(text)
@@ -208,17 +192,12 @@ object MsuiDslParser {
 
         fun makeNode(type: String, keyToken: Tok): Node = Node(type, keyToken)
 
-        // A child node is only sensible inside a *container* node type (table/pane/buttonTable) or
-        // the (always-container) root. Non-container node types are leaf widgets, so nesting any
-        // node inside one - whether written as a bare shorthand value (`button: "..."`), a
-        // shorthand value with a follow-up block, a `{ }` body, or a bare/typeless child - is
-        // structurally nonsensical there and gets a warning.
+        // A child node is only sensible inside a container node type (table/pane/buttonTable/stack)
         fun validateChildNodeContainment(parentNode: Node, childType: String, childKeyTok: Tok) {
             if(parentNode.isRoot) return
             val parentDef = schema.nodeTypes[parentNode.type] ?: return
 
-            // `defaults` only makes sense for a container that lays children out via Cells;
-            // a cell-less container like `stack` has nothing for it to set defaults on.
+            // `defaults` only makes sense for a container that lays children out via Cells
             if(childType == "defaults" && parentDef.noCells) {
                 warn(childKeyTok, "'defaults' does nothing inside '${parentNode.type}'; '${parentNode.type}' doesn't lay out children in cells.")
                 return
@@ -235,10 +214,6 @@ object MsuiDslParser {
             warn(childKeyTok, "'$childType' can't be used as a node here; '${parentNode.type}' isn't a container and doesn't accept child nodes.")
         }
 
-        // `row` is a layout break between a container's children; it's meaningless inside a
-        // non-container node type, so flag it the same way an out-of-place child node is flagged.
-        // It's equally meaningless inside a cell-less container like `stack`, which never breaks
-        // children into rows to begin with.
         fun validateRowContainment(parentNode: Node, rowTok: Tok) {
             if(parentNode.isRoot) return
             val parentDef = schema.nodeTypes[parentNode.type] ?: return
@@ -253,11 +228,7 @@ object MsuiDslParser {
             warn(rowTok, "'row' can't be used here; '${parentNode.type}' isn't a container.")
         }
 
-        // parseStatementsInto and parseStatement are mutually recursive. Kotlin local `fun`s
-        // can't forward-reference each other, so they're declared as lateinit lambdas instead:
-        // both are assigned before either is ever invoked (parse() only calls parseStatementsInto
-        // at the very end, after this whole block has run), and each just closes over the other's
-        // var, resolved at call time.
+        // parseStatementsInto and parseStatement are mutually recursive, so declare them lateinit
         lateinit var parseStatementsInto: (Node) -> Unit
         lateinit var parseStatement: (Node) -> Unit
 
@@ -269,8 +240,7 @@ object MsuiDslParser {
             }
         }
 
-        // Labeled because it's a plain (non-inline) lambda: bare `return` inside it would try
-        // to do a non-local return from the enclosing `parse()`, which isn't allowed here.
+        // Labeled because it's a plain (non-inline) lambda
         parseStatement = ps@{ node ->
             val identTok = peek()
 
@@ -392,10 +362,6 @@ object MsuiDslParser {
 
         return ParseResult(root, diagnostics, tokens)
     }
-
-    // ---------------------------------------------------------------------
-    // Schema-driven helpers, shared with completion/documentation
-    // ---------------------------------------------------------------------
 
     fun styleNamesFor(styleTypes: List<String>, schema: MsuiSchema): List<String> =
         styleTypes.flatMap { t -> schema.styles[t].orEmpty().map { it.name } }
